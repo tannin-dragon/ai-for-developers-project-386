@@ -1,0 +1,30 @@
+{
+  "name": "callendar-backend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Callendar — бэкенд API бронирования звонков (контракт main.tsp, in-memory)",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@date-fns/tz": "^1.2.0",
+    "@hono/node-server": "^1.11.0",
+    "date-fns": "^4.4.0",
+    "hono": "^4.0.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "tsx": "^4.20.0",
+    "typescript": "~6.0.2",
+    "vitest": "^3.2.4"
+  }
+}

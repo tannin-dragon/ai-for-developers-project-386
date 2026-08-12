@@ -31,14 +31,25 @@ npx tsp compile .    # компиляция контракта
 - `certificates.md` — отчёт про сертификаты/MITM-прокси.
 - `SESSION_GITHUB.md`, `SESSION_PROJECT.md` — локальные памятки сессии (**в репозиторий не коммитить**, исключены через `.gitignore`).
 - `frontend/` — SPA (Vite + React 19 + TS + shadcn/ui); сборка `npm run build` → `frontend/dist/` (в `.gitignore`).
+- `backend/` — API по контракту (Node 22 + Hono + zod, хранилище в памяти); сборка `npm run build` → `backend/dist/` (в `.gitignore`); E2E — `scripts/e2e.ps1`.
 
 ## Раздача приложения (Docker)
 
 - `docker-compose.yml` и `nginx/default.conf` лежат уровнем выше (`../`), проект смонтирован в контейнеры как `/var/www`.
-- Контейнер `app-nginx-1` (`8080→80`) отдаёт собранное SPA из `frontend/dist` на `http://app.loc:8080` с SPA-fallback на `index.html`; `/v1/*` → 404 (бэкенд не реализован; шаблон `proxy_pass` — в комментарии `nginx/default.conf`).
-- После изменений фронта: `npm run build` в `frontend/` (dist смонтирован в контейнер, перезапуск не нужен). После правки `nginx/default.conf`: `docker exec app-nginx-1 nginx -t && docker exec app-nginx-1 nginx -s reload`.
+- Контейнер `app-nginx-1` (`8080→80`) отдаёт собранное SPA из `frontend/dist` на `http://app.loc:8080` (SPA-fallback на `index.html`); `/v1/*` проксируется на бэкенд `app-api-1` (сервис `api`, порт 3000).
+- Контейнер `app-api-1` (node:22-alpine) запускает собранный `backend/dist/index.js`. Зависимости ставятся на хосте (`npm install` в `backend/`): runtime-зависимости — чистый JS, кроссплатформенно. На хост опубликован `127.0.0.1:3000` для прямых проверок API.
+- После изменений фронта: `npm run build` в `frontend/`. После изменений бэкенда: `npm run build` в `backend/` + `docker restart app-api-1` (in-memory: данные сбрасываются, сид накатывается заново). После правки `nginx/default.conf`: `docker exec app-nginx-1 nginx -t && docker exec app-nginx-1 nginx -s reload`.
 - Dev-режим с HMR: `npm run dev` в `frontend/` (порт 5173, прокси `/v1` на `VITE_PROXY_TARGET`, дефолт `http://app.loc:8080`).
-- phpinfo-заглушка `index.php` удалена; PHP-FPM (`app-php-1`) в раздаче не участвует, оставлен под будущий бэкенд.
+- PHP-FPM (`app-php-1`) в раздаче не участвует, оставлен про запас; `index.php`-заглушка удалена.
+
+## Бэкенд (public/backend)
+
+- Стек: Node 22 + TypeScript + Hono + zod; таймзоны — `date-fns` + `@date-fns/tz`. Хранилище в памяти (по ТЗ): перезапуск = чистый стейт.
+- Сид при старте: профиль (Europe/Moscow, Пн–Пт 09:00–18:00) + типы «Интервью» 30/15 и «Консультация» 60/30; `SEED_DEMO=false` отключает типы.
+- Конфиг env: `PORT` (3000), `OWNER_KEY` (дефолт `dev-owner-key`, только локальная разработка), `SEED_DEMO`.
+- Команды: `npm run dev` (tsx watch на хосте), `npm run build` (tsc → `dist/`), `npm test` (vitest), `pwsh scripts/e2e.ps1` — E2E через `app.loc:8080` (рассчитан на свежий стейт: `docker restart app-api-1`).
+- Ошибки: RFC 7807 `application/problem+json`, машинный код в `title` (этого ждёт фронт), полевые — в `errors[]`. Порядок валидации `POST /bookings` — как в `@doc` контракта.
+- Согласовано с владельцем контракта: `GET /bookings` без фильтров дат возвращает предстоящие (неявный `from=now`); удаление типа блокируют только подтверждённые и ещё не завершившиеся брони.
 
 ## Подводные камни TypeSpec 1.14
 
@@ -128,6 +139,6 @@ npx tsp compile .    # компиляция контракта
 
 ## Дальнейшие шаги (по желанию)
 
-1. Реализовать сервер по контракту (транзакция + Postgres `EXCLUDE USING gist (tsrange(start, end) WITH &&)` на активных бронях).
+1. Бэкенд реализован (in-memory). Следующий уровень — постоянное хранилище: Postgres с `EXCLUDE USING gist (tsrange(start, end) WITH &&)` на активных бронях.
 2. Сгенерировать клиент/тесты из `tsp-output/schema/openapi.yaml`.
 3. Оформить README по API. Подробнее — `SESSION_PROJECT.md`.
