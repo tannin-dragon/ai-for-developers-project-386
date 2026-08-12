@@ -10,3 +10,4 @@ node_modules/
 
 # Local session notes (не для репозитория)
 SESSION_*.md
+certificates.md
