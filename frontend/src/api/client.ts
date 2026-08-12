@@ -3,6 +3,26 @@ import type { ProblemDetails } from "./types"
 const API_BASE: string =
   (import.meta.env.VITE_API_URL as string | undefined) ?? "/v1"
 
+/**
+ * UUID v4 для Idempotency-Key. crypto.randomUUID доступен только в secure context
+ * (https или localhost); на http://app.loc:8080 его нет — падаем обратно на
+ * crypto.getRandomValues, который работает в любом контексте.
+ */
+function randomUuid(): string {
+  if (typeof crypto.randomUUID === "function") return crypto.randomUUID()
+  const bytes = crypto.getRandomValues(new Uint8Array(16))
+  bytes[6] = (bytes[6]! & 0x0f) | 0x40 // версия 4
+  bytes[8] = (bytes[8]! & 0x3f) | 0x80 // вариант RFC 4122
+  const hex = [...bytes].map((b) => b.toString(16).padStart(2, "0"))
+  return [
+    hex.slice(0, 4).join(""),
+    hex.slice(4, 6).join(""),
+    hex.slice(6, 8).join(""),
+    hex.slice(8, 10).join(""),
+    hex.slice(10).join(""),
+  ].join("-")
+}
+
 export class ApiError extends Error {
   status: number
   problem?: ProblemDetails
@@ -47,7 +67,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   }
 
   if (idempotencyKey && !headers["Idempotency-Key"]) {
-    finalHeaders["Idempotency-Key"] = crypto.randomUUID()
+    finalHeaders["Idempotency-Key"] = randomUuid()
   }
 
   let response: Response
