@@ -141,4 +141,4 @@ npx tsp compile .    # компиляция контракта
 
 1. Бэкенд реализован (in-memory). Следующий уровень — постоянное хранилище: Postgres с `EXCLUDE USING gist (tsrange(start, end) WITH &&)` на активных бронях.
 2. Сгенерировать клиент/тесты из `tsp-output/schema/openapi.yaml`.
-3. Оформить README по API. Подробнее — `SESSION_PROJECT.md`.
+3. ~~Оформить README по API~~ — сделано (`README.md` на русском: стек, запуск, тесты, сводка API). Подробнее — `SESSION_PROJECT.md`.
