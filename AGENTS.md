@@ -30,7 +30,15 @@ npx tsp compile .    # компиляция контракта
 - `package.json` / `package-lock.json` — зависимости (`@typespec/compiler|http|rest|openapi|openapi3` ^1.14).
 - `certificates.md` — отчёт про сертификаты/MITM-прокси.
 - `SESSION_GITHUB.md`, `SESSION_PROJECT.md` — локальные памятки сессии (**в репозиторий не коммитить**, исключены через `.gitignore`).
-- `index.php` — страница проверки проекта (phpinfo), локальная, не коммитится.
+- `frontend/` — SPA (Vite + React 19 + TS + shadcn/ui); сборка `npm run build` → `frontend/dist/` (в `.gitignore`).
+
+## Раздача приложения (Docker)
+
+- `docker-compose.yml` и `nginx/default.conf` лежат уровнем выше (`../`), проект смонтирован в контейнеры как `/var/www`.
+- Контейнер `app-nginx-1` (`8080→80`) отдаёт собранное SPA из `frontend/dist` на `http://app.loc:8080` с SPA-fallback на `index.html`; `/v1/*` → 404 (бэкенд не реализован; шаблон `proxy_pass` — в комментарии `nginx/default.conf`).
+- После изменений фронта: `npm run build` в `frontend/` (dist смонтирован в контейнер, перезапуск не нужен). После правки `nginx/default.conf`: `docker exec app-nginx-1 nginx -t && docker exec app-nginx-1 nginx -s reload`.
+- Dev-режим с HMR: `npm run dev` в `frontend/` (порт 5173, прокси `/v1` на `VITE_PROXY_TARGET`, дефолт `http://app.loc:8080`).
+- phpinfo-заглушка `index.php` удалена; PHP-FPM (`app-php-1`) в раздаче не участвует, оставлен под будущий бэкенд.
 
 ## Подводные камни TypeSpec 1.14
 
@@ -116,7 +124,7 @@ npx tsp compile .    # компиляция контракта
 - `origin`: `https://github.com/tannin-dragon/ai-for-developers-project-386` (учебный репозиторий), ветка `main`.
 - Авторизация: сохранённые токены в Windows Credential Manager (GCM). Браузерный OAuth НЕ работает
   (`HttpListener` неподдерживаем), при переавторизации — device flow: `git-credential-manager github login --device`. Детали: `SESSION_GITHUB.md`.
-- **Не коммитить**: `SESSION_*.md`, `index.php`, любые секреты/токены (держать только в Windows Credential Manager).
+- **Не коммитить**: `SESSION_*.md`, любые секреты/токены (держать только в Windows Credential Manager).
 
 ## Дальнейшие шаги (по желанию)
 
