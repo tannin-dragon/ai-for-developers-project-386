@@ -8,6 +8,12 @@ dist/
 # Dependency directories
 node_modules/
 
+# Playwright / E2E artifacts
+test-results/
+playwright-report/
+blob-report/
+.env
+
 # Local session notes (не для репозитория)
 SESSION_*.md
 certificates.md
