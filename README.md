@@ -87,6 +87,8 @@ docker run --rm -p 3000:3000 -e PORT=3000 -e OWNER_KEY=dev-owner-key callendar
 при создании web service из этого Dockerfile — деплой автоматический, `PORT`
 подставляется платформой.
 
+**Живое приложение:** https://ai-for-developers-project-386-production-9390.up.railway.app
+
 ## Конфигурация
 
 Бэкенд (env, см. `backend/.env.example`):
