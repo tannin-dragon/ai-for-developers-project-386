@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/tannin-dragon/ai-for-developers-project-386/compare/v1.0.0...v1.1.0) (2026-08-15)
+
+
+### Features
+
+* Dockerfile для деплоя Callendar на один порт (SPA + /v1 API) ([e8d0941](https://github.com/tannin-dragon/ai-for-developers-project-386/commit/e8d0941d235fa3fd66619452a2e0b2601dadce9b))
+
 ## 1.0.0 (2026-08-15)
 
 
