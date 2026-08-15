@@ -28,9 +28,63 @@ jobs:
         with:
           persist-credentials: false
 
+      # Инлайн-установка opencode вместо anomalyco/opencode/github@latest,
+      # чтобы иметь контроль над retry только на 429 (rate limit).
+      - name: Get opencode version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(curl -sf https://api.github.com/repos/anomalyco/opencode/releases/latest | grep -o '"tag_name": *"[^"]*"' | cut -d'"' -f4)
+          echo "version=${VERSION:-latest}" >> $GITHUB_OUTPUT
+
+      - name: Cache opencode
+        id: cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.opencode/bin
+          key: opencode-${{ runner.os }}-${{ runner.arch }}-${{ steps.version.outputs.version }}
+
+      - name: Install opencode
+        if: steps.cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: curl -fsSL https://opencode.ai/install | bash
+
+      - name: Add opencode to PATH
+        shell: bash
+        run: echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+
       - name: Run opencode
-        uses: anomalyco/opencode/github@latest
+        shell: bash
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-        with:
-          model: opencode/deepseek-v4-flash-free
+          MODEL: opencode/deepseek-v4-flash
+          MENTIONS: /opencode,/oc
+        run: |
+          attempt=1
+          max_attempts=3
+          delay=3
+
+          while [ $attempt -le $max_attempts ]; do
+            echo "::group::Attempt $attempt/$max_attempts"
+            output=$(opencode github run 2>&1)
+            exit_code=$?
+            echo "$output"
+            echo "::endgroup::"
+
+            if [ $exit_code -eq 0 ]; then
+              exit 0
+            fi
+
+            if echo "$output" | grep -qiE "429|too many requests|rate.?limit"; then
+              if [ $attempt -lt $max_attempts ]; then
+                echo "429 / rate limit detected. Retrying in ${delay}s..."
+                sleep $delay
+                attempt=$((attempt + 1))
+                continue
+              fi
+            fi
+
+            exit $exit_code
+          done
+
+          exit 1
