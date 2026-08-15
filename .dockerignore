@@ -1,0 +1,22 @@
+# VCS
+.git
+.github
+
+# Node / сборки
+**/node_modules
+**/dist
+tsp-output/
+
+# Тесты и артефакты E2E
+test-results
+playwright-report
+blob-report
+tests
+
+# Локальные заметки и сертификаты (не в репозитории)
+SESSION_*.md
+certificates.md
+
+# Окружение
+.env
+.env.local

@@ -48,6 +48,8 @@ export const problems = {
     new Problem(404, "BOOKING_NOT_FOUND", "Бронирование не найдено"),
   blockedSlotNotFound: () =>
     new Problem(404, "BLOCKED_SLOT_NOT_FOUND", "Блокировка не найдена"),
+  notFound: () =>
+    new Problem(404, "NOT_FOUND", "Ресурс не найден"),
   // 409
   slotUnavailable: () =>
     new Problem(409, "SLOT_UNAVAILABLE", "Выбранное время уже занято другим бронированием"),

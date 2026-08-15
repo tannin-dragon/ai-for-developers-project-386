@@ -9,4 +9,6 @@ export const config = {
   ownerKey: process.env.OWNER_KEY?.trim() || "dev-owner-key",
   /** Сидировать профиль и два демо-типа звонков при старте. */
   seedDemo: (process.env.SEED_DEMO ?? "true").toLowerCase() !== "false",
+  /** Каталог собранного SPA для раздачи (пусто — статику не отдавать). */
+  staticDir: process.env.STATIC_DIR?.trim() || "",
 } as const
