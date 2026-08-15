@@ -1,0 +1,21 @@
+name: release-please
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          # Базовая стратегия: версия из корневого package.json (0.1.0),
+          # CHANGELOG.md и теги вида vX.Y.Z. Требует Conventional Commits.
+          release-type: node
