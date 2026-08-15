@@ -4,7 +4,7 @@ import { config } from "./config.js"
 import { createSeededStore } from "./seed.js"
 
 const store = createSeededStore(config.seedDemo)
-const app = createApp(store, config.ownerKey)
+const app = createApp(store, config.ownerKey, config.staticDir)
 
 serve({ fetch: app.fetch, port: config.port }, (info) => {
   console.log(
