@@ -92,6 +92,59 @@ cd ../frontend
 npm run build && npm run lint
 ```
 
+### E2E-тесты Playwright (UI)
+
+Сценарии для проверки зафиксированы в `tests/*.spec.ts` — гостевой флоу бронирования,
+вход владельца и просмотр бронирований, создание/редактирование/удаление типов звонков,
+блокировка и снятие блокировки слотов. Тесты самодостаточны (сами создают тестовые данные
+через API) и детерминированы на чистом состоянии.
+
+Локальный запуск (нужен поднятый стек, см. «Быстрый старт»):
+
+```powershell
+cd public
+npm install
+npx playwright install chromium   # в первый раз
+npx playwright test               # → 5 passed (BASE_URL по умолчанию http://app.loc:8080)
+```
+
+Запуск с другим адресом стека:
+
+```powershell
+$env:BASE_URL="http://localhost:8080"; npx playwright test
+```
+
+## CI (GitHub Actions)
+
+E2E и интеграционные проверки автоматически запускаются в GitHub Actions по workflow
+`.github/workflows/e2e.yml` на каждый push в `main` и на каждый pull request.
+
+Что делает job `e2e` (trusted runner, `ubuntu-latest`):
+
+1. `actions/checkout` + `actions/setup-node` (Node.js 22).
+2. В корне репозитория: `npm install` + `npx playwright install --with-deps chromium`.
+3. Build бэкенда (`backend/` → `dist/`) и фронтенда (`frontend/` → `dist/`).
+4. Поднимает CI-стек `docker compose --project-directory . -f e2e/docker-compose.ci.yml up -d api nginx`
+   — отдельный минимальный compose только с `api` + `nginx` (без php/mariadb/../certs локального стека).
+5. Ждёт готовности `http://localhost:8080` (curl с ретраями).
+6. Прогоняет Playwright: `npx playwright test` c `BASE_URL=http://localhost:8080` и `CI=1`
+   (report `list` + `github`, retries 1 на свежем состоянии API).
+7. При падении выгружает `playwright-report/` артефактом (`retention-days: 7`).
+
+Статус последнего прогона
+
+[![E2E tests](https://github.com/tannin-dragon/ai-for-developers-project-386/actions/workflows/e2e.yml/badge.svg)](https://github.com/tannin-dragon/ai-for-developers-project-386/actions/workflows/e2e.yml)
+
+Прогнать тот же CI-сценарий локально можно так:
+
+```powershell
+cd public/backend && npm install && npm run build   # dist/
+cd ../frontend && npm install && npm run build      # dist/
+cd ..
+$env:BASE_URL="http://localhost:8080"; $env:CI="1"
+npx playwright test
+```
+
 ## Режим разработки
 
 ```powershell
