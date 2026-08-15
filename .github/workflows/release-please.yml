@@ -16,6 +16,9 @@ jobs:
     steps:
       - uses: googleapis/release-please-action@v4
         with:
+          # PAT вместо GITHUB_TOKEN, чтобы коммиты/PR от release-please
+          # запускали остальные workflow (e2e.yml) — GITHUB_TOKEN этого не делает.
+          token: ${{ secrets.CALLENDAR }}
           # Базовая стратегия: версия из корневого package.json (0.1.0),
           # CHANGELOG.md и теги вида vX.Y.Z. Требует Conventional Commits.
           release-type: node
