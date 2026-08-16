@@ -55,6 +55,12 @@ jobs:
         shell: bash
         run: echo "$HOME/.opencode/bin" >> $GITHUB_PATH
 
+      - name: Configure git identity
+        shell: bash
+        run: |
+          git config user.name "tannin-dragon"
+          git config user.email "tasenok@gmail.com"
+
       - name: Run opencode
         shell: bash
         env:
