@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/tannin-dragon/ai-for-developers-project-386/compare/v1.1.0...v1.1.1) (2026-08-16)
+
+
+### Bug Fixes
+
+* **opencode:** add actions:write permission for cache save ([6eb0a65](https://github.com/tannin-dragon/ai-for-developers-project-386/commit/6eb0a6522ae2b840d2872d6348c4cf4b3a31f47b))
+* **opencode:** bypass broken OIDC exchange via USE_GITHUB_TOKEN ([57de054](https://github.com/tannin-dragon/ai-for-developers-project-386/commit/57de054e6d4e2f6aa8d9a6a6f120112b8a02dcbf))
+
 ## [1.1.0](https://github.com/tannin-dragon/ai-for-developers-project-386/compare/v1.0.0...v1.1.0) (2026-08-15)
 
 
