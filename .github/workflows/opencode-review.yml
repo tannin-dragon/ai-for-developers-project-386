@@ -65,6 +65,7 @@ jobs:
             - Check for code quality issues
             - Look for potential bugs
             - Suggest improvements
+            - Never modify files under `.github/workflows/` — comment only.
         run: |
           attempt=1
           max_attempts=3
