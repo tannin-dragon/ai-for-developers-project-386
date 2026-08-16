@@ -18,15 +18,16 @@ jobs:
       github.event.comment.author_association == 'OWNER'
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
-      contents: read
-      pull-requests: read
-      issues: read
+      contents: write
+      pull-requests: write
+      issues: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          persist-credentials: false
+          # При USE_GITHUB_TOKEN opencode CLI сам не настраивает git-креды,
+          # поэтому push/PR идут через креды, сохранённые checkout'ом.
+          persist-credentials: true
 
       # Инлайн-установка opencode вместо anomalyco/opencode/github@latest,
       # чтобы иметь контроль над retry только на 429 (rate limit).
@@ -57,8 +58,12 @@ jobs:
         shell: bash
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MODEL: opencode/deepseek-v4-flash
           MENTIONS: /opencode,/oc
+          # Обход бага OIDC-обмена для репозиториев после 2026-07-15:
+          # https://github.com/anomalyco/opencode/issues/37823, #37831, #37889
+          USE_GITHUB_TOKEN: 'true'
         run: |
           attempt=1
           max_attempts=3
