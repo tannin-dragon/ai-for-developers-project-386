@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/tannin-dragon/ai-for-developers-project-386/compare/v1.1.1...v1.1.2) (2026-08-16)
+
+
+### Bug Fixes
+
+* permissions ([35234e6](https://github.com/tannin-dragon/ai-for-developers-project-386/commit/35234e62a5726eaabb0a458780d690ad471cbbb2))
+
 ## [1.1.1](https://github.com/tannin-dragon/ai-for-developers-project-386/compare/v1.1.0...v1.1.1) (2026-08-16)
 
 
